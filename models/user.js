@@ -9,6 +9,7 @@ let userSchema = new mongoose.Schema({
   updated_at: { type: Date, default: Date.now },
 });
 
+//hash password
 userSchema.pre("save", function (next) {
   if (this.isNew || this.isModified("password")) {
     bcrypt.hash(this.password, 10, (err, hashedPassword) => {
@@ -20,5 +21,11 @@ userSchema.pre("save", function (next) {
     });
   }
 });
+
+userSchema.methods.isCorrectPassword = function (password, callback) {
+  bcrypt.compare(password, this.password, function (err, same) {
+    (err) ? callback(err) : callback(err, same);
+  });
+};
 
 module.exports = mongoose.model("User", userSchema);
