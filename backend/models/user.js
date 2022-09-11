@@ -7,16 +7,10 @@ let userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
-  author: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
 });
 
-userSchema.pre("save", (next) => {
+userSchema.pre("save", function (next) {
   if (this.isNew || this.isModified("password")) {
-    const document = this;
     bcrypt.hash(this.password, 10, (err, hashedPassword) => {
       if (err) next(err);
       else {
