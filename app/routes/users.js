@@ -6,8 +6,8 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const secret = process.env.JWT_TOKEN;
 
-//Routes
-const User = require("../../models/user");
+//Model
+const User = require("../models/user");
 
 router.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
