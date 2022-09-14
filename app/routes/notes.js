@@ -37,19 +37,16 @@ router.get("/", withAuth, async (req, res) => {
   }
 });
 
-router.put("/:id", withAuth, async (req, res) => {
-  const { title, body } = req.body;
-  const { id } = req.params;
-
+router.patch("/:id", withAuth, async (req, res) => {
   try {
-    let note = await Note.findById(id);
+    let note = await Note.findById(req.params.id);
     if (isOwner(req.user, note)) {
-      let note = await Note.findOneAndUpdate(
-        id,
-        { $set: { title: title, body: body } },
-        { upsert: true, new: true }
+      await Note.updateOne(
+        { _id: req.params.id },
+        { title: req.body.title, body: req.body.body }
       );
-      res.json(note);
+      let newNote = await Note.findById(req.params.id);
+      res.json(newNote);
     } else {
       res.status(403).json({ error: "Permission denied" });
     }
