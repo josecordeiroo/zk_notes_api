@@ -17,6 +17,17 @@ router.post("/", withAuth, async (req, res) => {
   }
 });
 
+router.get('/search', withAuth, async (req, res) => {
+  const {query} = req.query
+  try {
+    let notes = await Note.find({author: req.user._id})
+    .find({$text: {$search: query}}) //this needs index in note model to work
+    res.json(notes)
+  } catch (error) {
+    res.json({error: error}).status(500)
+  }
+})
+
 router.get("/:id", withAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -52,6 +63,21 @@ router.patch("/:id", withAuth, async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ error: "Problem to update a new note" });
+  }
+});
+
+router.delete("/:id", withAuth, async (req, res) => {
+  try {
+    let note = await Note.findById(req.params.id);
+    if (isOwner(req.user, note))
+      await Note.findOneAndRemove({ _id: req.params.id });
+    res
+      .json({
+        success: true,
+      })
+      .status(204);
+  } catch (error) {
+    res.status(500).json({ error: "Problem to delete note" });
   }
 });
 
