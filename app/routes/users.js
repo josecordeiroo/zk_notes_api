@@ -4,13 +4,13 @@ var router = express.Router();
 const jwt = require("jsonwebtoken");
 
 const withAuth = require("../middlewares/auth");
-const { findById } = require("../models/user");
 
 require("dotenv").config();
 const secret = process.env.JWT_TOKEN;
 
 //Model
 const User = require("../models/user");
+const Note = require("../models/note");
 
 router.post("/register", async (req, res) => {
   const { name, email, userName, password } = req.body;
@@ -68,6 +68,7 @@ router.patch("/:id", withAuth, async (req, res) => {
 router.delete("/:id", withAuth, async (req, res) => {
   try {
       await User.findOneAndRemove({ _id: req.params.id });
+      await Note.deleteMany({author: req.params.id})
     res
       .json({
         success: true,
