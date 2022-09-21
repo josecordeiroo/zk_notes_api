@@ -79,4 +79,13 @@ router.delete("/:id", withAuth, async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    let user = await User.findById(req.params.id);
+    res.json(user)
+  } catch (error) {
+    res.status(500).json({ error: "Problem to get user" });
+  }
+});
+
 module.exports = router;
