@@ -65,4 +65,17 @@ router.patch("/:id", withAuth, async (req, res) => {
   }
 });
 
+router.delete("/:id", withAuth, async (req, res) => {
+  try {
+      await User.findOneAndRemove({ _id: req.params.id });
+    res
+      .json({
+        success: true,
+      })
+      .status(204);
+  } catch (error) {
+    res.status(500).json({ error: "Problem to delete user" });
+  }
+});
+
 module.exports = router;
