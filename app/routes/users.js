@@ -53,7 +53,7 @@ router.put("/", withAuth, async (req, res) => {
   try {
     var user = await User.findOneAndUpdate(
       { _id },
-      {$set: { name: name, email: email }},
+      {$set: { name: name, email: email, userName: userName }},
       {upsert: true, 'new': true}
     );
     res.json(user);
@@ -62,12 +62,13 @@ router.put("/", withAuth, async (req, res) => {
   }
 });
 
-router.put("/password/", withAuth, async (req, res) => {
+router.put("/password/:id", withAuth, async (req, res) => {
   const { password } = req.body;
 
   try {
     var user = await User.findOne({ _id: req.params.id });
-    user.password = req.body.password;
+    console.log(user)
+    user.password = password;
     user.save();
     res.json(user);
   } catch (error) {
