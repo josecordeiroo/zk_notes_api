@@ -10,8 +10,8 @@ const secret = process.env.JWT_TOKEN;
 const User = require("../models/user");
 
 router.post("/register", async (req, res) => {
-  const { name, email, password } = req.body;
-  const user = new User({ name, email, password });
+  const { name, email, userName, password } = req.body;
+  const user = new User({ name, email, password, userName });
 
   try {
     await user.save();
