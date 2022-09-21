@@ -3,6 +3,9 @@ var router = express.Router();
 
 const jwt = require("jsonwebtoken");
 
+const withAuth = require("../middlewares/auth");
+const { findById } = require("../models/user");
+
 require("dotenv").config();
 const secret = process.env.JWT_TOKEN;
 
@@ -27,7 +30,6 @@ router.post("/login", async (req, res) => {
   try {
     let user = await User.findOne({ email });
 
-    
     if (!user) {
       res.status(401).json({ error: "Incorrect email or password" });
     } else {
@@ -42,6 +44,24 @@ router.post("/login", async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ error: "Internal error, please try again" });
+  }
+});
+
+router.patch("/:id", withAuth, async (req, res) => {
+  try {
+    await User.updateOne(
+      { _id: req.params.id },
+      {
+        name: req.body.name,
+        userName: req.body.userName,
+        email: req.body.email,
+        password: req.body.password,
+      }
+    );
+    const newUser = await User.findById(req.params.id);
+    res.json(newUser);
+  } catch (error) {
+    res.status(500).json({ error: "Problem to update user" });
   }
 });
 
