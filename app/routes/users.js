@@ -47,19 +47,29 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.patch("/:id", withAuth, async (req, res) => {
+router.put("/", withAuth, async (req, res) => {
+  const { _id, name, userName, email } = req.body;
+
   try {
-    await User.updateOne(
-      { _id: req.params.id },
-      {
-        name: req.body.name,
-        userName: req.body.userName,
-        email: req.body.email,
-        password: req.body.password,
-      }
+    var user = await User.findOneAndUpdate(
+      { _id },
+      {$set: { name: name, email: email }},
+      {upsert: true, 'new': true}
     );
-    const newUser = await User.findById(req.params.id);
-    res.json(newUser);
+    res.json(user);
+  } catch (error) {
+    res.status(401).json({ error: "Problem to update user" });
+  }
+});
+
+router.put("/password/", withAuth, async (req, res) => {
+  const { password } = req.body;
+
+  try {
+    var user = await User.findOne({ _id: req.params.id });
+    user.password = req.body.password;
+    user.save();
+    res.json(user);
   } catch (error) {
     res.status(500).json({ error: "Problem to update user" });
   }
@@ -67,8 +77,8 @@ router.patch("/:id", withAuth, async (req, res) => {
 
 router.delete("/:id", withAuth, async (req, res) => {
   try {
-      await User.findOneAndRemove({ _id: req.params.id });
-      await Note.deleteMany({author: req.params.id})
+    await User.findOneAndRemove({ _id: req.params.id });
+    await Note.deleteMany({ author: req.params.id });
     res
       .json({
         success: true,
@@ -82,7 +92,7 @@ router.delete("/:id", withAuth, async (req, res) => {
 router.get("/", withAuth, async (req, res) => {
   try {
     let user = await User.findById({ _id: req.user._id });
-    res.json(user)
+    res.json(user);
   } catch (error) {
     res.status(500).json({ error: "Problem to get user" });
   }
